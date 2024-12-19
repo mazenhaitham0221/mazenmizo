@@ -4,7 +4,7 @@ function getLocation() {
         // طلب إذن المستخدم للحصول على الموقع
         navigator.geolocation.getCurrentPosition(showPosition, showError);
     } else {
-        document.getElementById("location").innerText = "الموقع الجغرافي غير مدعوم في هذا المتصفح.";
+        document.getElementById("locationInfo").innerText = "الموقع الجغرافي غير مدعوم في هذا المتصفح.";
     }
 }
 
@@ -13,9 +13,13 @@ function showPosition(position) {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
 
-    // عرض الموقع الجغرافي (خط العرض والطول)
-    document.getElementById("location").innerText = 
+    // عرض الموقع الجغرافي (خط العرض والطول) في الصفحة
+    document.getElementById("locationInfo").innerText = 
         `خط العرض: ${latitude}, خط الطول: ${longitude}`;
+
+    // حفظ الموقع الجغرافي في localStorage
+    localStorage.setItem("latitude", latitude);
+    localStorage.setItem("longitude", longitude);
 
     // عرض الموقع على الخريطة باستخدام خرائط جوجل
     showMap(latitude, longitude);
@@ -25,16 +29,16 @@ function showPosition(position) {
 function showError(error) {
     switch (error.code) {
         case error.PERMISSION_DENIED:
-            document.getElementById("location").innerText = "تم رفض الإذن للوصول إلى الموقع.";
+            document.getElementById("locationInfo").innerText = "تم رفض الإذن للوصول إلى الموقع.";
             break;
         case error.POSITION_UNAVAILABLE:
-            document.getElementById("location").innerText = "الموقع غير متاح.";
+            document.getElementById("locationInfo").innerText = "الموقع غير متاح.";
             break;
         case error.TIMEOUT:
-            document.getElementById("location").innerText = "انتهى الوقت للحصول على الموقع.";
+            document.getElementById("locationInfo").innerText = "انتهى الوقت للحصول على الموقع.";
             break;
         default:
-            document.getElementById("location").innerText = "حدث خطأ غير معروف.";
+            document.getElementById("locationInfo").innerText = "حدث خطأ غير معروف.";
             break;
     }
 }
@@ -55,4 +59,19 @@ function showMap(latitude, longitude) {
 // إضافة Google Maps API
 function initMap() {
     // سيتم تحميل الخريطة بعد الموافقة من المستخدم
+}
+
+// تحميل البيانات المخزنة من localStorage إذا كانت موجودة
+window.onload = function() {
+    const storedLatitude = localStorage.getItem("latitude");
+    const storedLongitude = localStorage.getItem("longitude");
+
+    if (storedLatitude && storedLongitude) {
+        // عرض الموقع المخزن في الصفحة إذا كان موجودًا
+        document.getElementById("locationInfo").innerText = 
+            `الموقع المخزن: خط العرض: ${storedLatitude}, خط الطول: ${storedLongitude}`;
+        
+        // عرض الموقع على الخريطة باستخدام القيم المخزنة
+        showMap(parseFloat(storedLatitude), parseFloat(storedLongitude));
+    }
 }
